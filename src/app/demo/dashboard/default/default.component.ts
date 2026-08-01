@@ -9,6 +9,7 @@ import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
 import { SelectComponent } from 'src/app/components/ui/select/select.component';
 import { StatCardData } from 'src/app/components/ui/card/stat-card.component';
 import { StatCardGridComponent } from 'src/app/components/ui/card/stat-card-grid.component';
+import { apiErrorMessage } from 'src/app/shared/api-error-message';
 
 interface DashboardStats {
   summary: {
@@ -84,10 +85,7 @@ export class DefaultComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.error =
-          error?.status === 0
-            ? 'El backend no está disponible en http://127.0.0.1:8000.'
-            : error?.error?.detail || 'No fue posible cargar las estadísticas.';
+        this.error = apiErrorMessage(error, 'No fue posible cargar las estadísticas.');
         this.loading = false;
         this.cdr.detectChanges();
       }

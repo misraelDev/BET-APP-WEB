@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { HOUR_FILTER_OPTIONS } from 'src/app/shared/hour-filter.options';
+import { apiErrorMessage } from 'src/app/shared/api-error-message';
 
 import { BaseballApiService } from './baseball-api.service';
 import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
@@ -245,10 +246,10 @@ export class BaseballComponent implements OnInit {
     fallback: string
   ): string {
     if (error?.name === 'TimeoutError') {
-      return 'La operación superó el tiempo máximo. Verifica API-Sports e inténtalo nuevamente.';
+      return 'La operación superó el tiempo máximo. Verifica la fuente de datos e inténtalo nuevamente.';
     }
     if (error?.status === 0) {
-      return 'El backend no está disponible en http://127.0.0.1:8000.';
+      return apiErrorMessage(error, fallback);
     }
     return error?.error?.detail || fallback;
   }

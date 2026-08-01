@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { HOUR_FILTER_OPTIONS } from 'src/app/shared/hour-filter.options';
+import { apiErrorMessage } from 'src/app/shared/api-error-message';
 
 import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
 import { MarketStatusComponent } from 'src/app/components/ui/market-status/market-status.component';
@@ -150,9 +151,7 @@ export class FootballComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error: any) => {
-        this.error = error?.status === 0
-          ? 'El backend no está disponible en http://127.0.0.1:8000.'
-          : error?.error?.detail || 'No fue posible completar la operación.';
+        this.error = apiErrorMessage(error, 'No fue posible completar la operación.');
         this.working = false;
         this.cdr.detectChanges();
       }
