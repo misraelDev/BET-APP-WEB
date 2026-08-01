@@ -1,0 +1,222 @@
+<div class="sports-page">
+    <app-card [cardTitle]="cardTitle">
+    @if (activeView === 'generate') {
+      <div>
+        <form class="sports-form" (ngSubmit)="generate()">
+          <div class="sports-field">
+            <label class="sports-label" for="prediction-date">Fecha</label>
+            <input id="prediction-date" class="sports-input" type="date" name="date" [(ngModel)]="request.date" required />
+          </div>
+          <div class="sports-field">
+            <label class="sports-label" for="prediction-league">Liga</label>
+            <app-select id="prediction-league" name="league" [value]="request.league" [options]="leagueOptions" (valueChange)="request.league = $any($event)" />
+          </div>
+          <div class="sports-field">
+            <label class="sports-label" for="prediction-limit">Partidos</label>
+            <input id="prediction-limit" class="sports-input" type="number" name="limit" min="1" max="20" [(ngModel)]="request.limit" />
+          </div>
+          <button class="sports-button" type="submit" [disabled]="generating">
+            Generar y guardar
+          </button>
+        </form>
+      </div>
+
+      @if (generationError) {
+        <div class="sports-alert" role="alert">{{ generationError }}</div>
+      }
+
+      @if (generation; as data) {
+        <div class="sports-summary mb-4">
+          <div><strong>{{ data.games_found }}</strong><span>Partidos encontrados</span></div>
+          <div><strong>{{ data.games_returned }}</strong><span>Predicciones generadas</span></div>
+          <div><strong>{{ data.persistence?.inserted ?? 0 }}</strong><span>Nuevos registros</span></div>
+          <div><strong>{{ data.persistence?.updated ?? 0 }}</strong><span>Registros actualizados</span></div>
+        </div>
+
+        @if (data.persistence?.error) {
+          <div class="alert alert-warning" role="alert">{{ data.persistence?.error }}</div>
+        }
+
+        <div class="sports-table-shell">
+          <div class="px-3 py-2 border-bottom bg-light text-muted f-12">
+            {{ data.requested_date | date: 'dd MMM yyyy' }} · {{ data.filters['league'] | uppercase }} · {{ data.model_version }}
+          </div>
+          <div class="overflow-x-auto">
+            <table class="sports-table min-w-[960px]">
+              <thead>
+                <tr>
+                  <th>Partido</th>
+                  <th><app-market-label kind="winner" label="Ganador" /></th>
+                  <th><app-market-label kind="handicap" label="Hándicap" /></th>
+                  <th><app-market-label kind="total" label="Más / menos" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (prediction of data.predictions; track trackPrediction($index, prediction)) {
+                  <tr>
+                    <td>
+                      <span class="sports-caption">{{ prediction.league }}</span>
+                      <strong>{{ prediction.away_team }} <span>vs</span> {{ prediction.home_team }}</strong>
+                      <small>{{ prediction.kickoff | date: 'shortTime' }}</small>
+                    </td>
+                    <td>
+                      <span class="market-caption">Moneyline</span>
+                      <span class="winner">{{ winner(prediction) }}</span>
+                      <app-probability-bar [value]="prediction.predicted_result === 'home' ? prediction.probabilities.home : prediction.probabilities.away" />
+                    </td>
+                    <td>
+                      <span class="market-caption">Run line</span>
+                      <span class="market-pick" [class.no-signal]="!prediction.markets?.handicap_team">{{ handicap(prediction) }}</span>
+                      <app-probability-bar [value]="prediction.markets?.handicap_confidence" />
+                    </td>
+                    <td>
+                      <span class="market-caption">Juego completo</span>
+                      <span class="market-pick" [class.no-signal]="!prediction.markets?.total_pick">{{ total(prediction) }}</span>
+                      <app-probability-bar [value]="prediction.markets?.total_confidence" />
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4" class="sports-empty">No hay partidos elegibles para esta fecha y liga.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    } @else if (activeView === 'results') {
+      <div>
+        <div class="sports-form !flex w-full !max-w-none flex-nowrap items-end overflow-x-auto pb-1">
+          <div class="sports-field min-w-40 flex-1 basis-0">
+            <label class="sports-label" for="result-date">Fecha</label>
+            <input id="result-date" class="sports-input" type="date" [(ngModel)]="resultDate" (change)="changeResultsFilter()" />
+          </div>
+          <div class="sports-field min-w-36 flex-1 basis-0">
+            <label class="sports-label" for="result-league">Liga</label>
+            <app-select id="result-league" [value]="resultLeague" [options]="leagueOptions.slice(0, 2)" (valueChange)="resultLeague = $any($event); changeResultsFilter()" />
+          </div>
+          <div class="sports-field min-w-44 flex-1 basis-0">
+            <label class="sports-label" for="baseball-results-hour">Hora</label>
+            <app-select id="baseball-results-hour" [value]="resultsHour" [options]="hourOptions" (valueChange)="resultsHour = $any($event); changeResultsFilter()" />
+          </div>
+          <div class="shrink-0"><app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showNavigation]="false" (pageSizeChange)="changeResultsPageSize($event)" /></div>
+        </div>
+        <small class="sports-help">
+          Fuente: colección de predicciones en MongoDB.
+        </small>
+      </div>
+
+      @if (resultsError) {
+        <div class="sports-alert" role="alert">{{ resultsError }}</div>
+      }
+
+      <div class="sports-table-shell">
+        <div class="overflow-x-auto">
+          <table class="sports-table min-w-[1120px]">
+            <thead>
+              <tr>
+                <th>Generada</th>
+                <th>Partido</th>
+                <th><app-market-label kind="winner" label="Ganador" /></th>
+                <th><app-market-label kind="handicap" label="Hándicap" /></th>
+                <th><app-market-label kind="total" label="Más / menos" /></th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of storedResults; track trackStored($index, record)) {
+                <tr>
+                  <td>
+                    <strong>{{ record.generated_at | date: 'dd MMM' }}</strong>
+                    <small>{{ record.generated_at | date: 'shortTime' }}</small>
+                  </td>
+                  <td>
+                    <span class="sports-caption">{{ record.prediction.league }}</span>
+                    <strong>{{ record.prediction.away_team }} <span>vs</span> {{ record.prediction.home_team }}</strong>
+                    <small>{{ record.prediction.kickoff | date: 'shortTime' }}</small>
+                    @if (record.settlement) {
+                      <small>Final: {{ record.settlement.away_score }}–{{ record.settlement.home_score }}</small>
+                    }
+                  </td>
+                  <td>
+                    <span class="market-caption">Moneyline</span>
+                    <span class="winner">{{ winner(record.prediction) }}</span>
+                    <app-probability-bar [value]="record.prediction.predicted_result === 'home' ? record.prediction.probabilities.home : record.prediction.probabilities.away" />
+                    <app-market-status
+                      [outcome]="marketOutcomeValue(record, 'moneyline')"
+                      [units]="marketUnits(record, 'moneyline')"
+                    />
+                  </td>
+                  <td>
+                    <span class="market-caption">Run line</span>
+                    <span class="market-pick" [class.no-signal]="!record.prediction.markets?.handicap_team">{{ handicap(record.prediction) }}</span>
+                    <app-probability-bar [value]="record.prediction.markets?.handicap_confidence" />
+                    <app-market-status
+                      [outcome]="marketOutcomeValue(record, 'handicap')"
+                      [units]="marketUnits(record, 'handicap')"
+                    />
+                  </td>
+                  <td>
+                    <span class="market-caption">Juego completo</span>
+                    <span class="market-pick" [class.no-signal]="!record.prediction.markets?.total_pick">{{ total(record.prediction) }}</span>
+                    <app-probability-bar [value]="record.prediction.markets?.total_confidence" />
+                    <app-market-status
+                      [outcome]="marketOutcomeValue(record, 'total')"
+                      [units]="marketUnits(record, 'total')"
+                    />
+                  </td>
+                  <td>
+                    <span class="market-caption">3 apuestas</span>
+                    <strong class="net-units" [ngClass]="unitsClass(record.settlement?.net_units)">
+                      {{ unitsLabel(record.settlement?.net_units) }}
+                    </strong>
+                    <small>Unidades netas</small>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6" class="sports-empty">No hay predicciones almacenadas con estos filtros.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showPageSize]="false" (pageChange)="changeResultsPage($event)" />
+    } @else {
+      <form class="sports-form" (ngSubmit)="updateMarketResults()">
+        <div class="sports-field">
+          <label class="sports-label" for="update-date">Fecha de los partidos</label>
+          <input id="update-date" class="sports-input" type="date" name="updateDate" [(ngModel)]="updateRequest.date" required />
+        </div>
+        <div class="sports-field">
+          <label class="sports-label" for="update-league">Liga</label>
+          <app-select id="update-league" name="updateLeague" [value]="updateRequest.league" [options]="leagueOptions.slice(0, 2)" (valueChange)="updateRequest.league = $any($event)" />
+        </div>
+        <button class="sports-button" type="submit" [disabled]="updatingResults">
+          Consultar y actualizar
+        </button>
+      </form>
+
+      <small class="sports-help">
+        Solo se procesan partidos finalizados y se actualizan los resultados de Moneyline, Run line y Más/Menos.
+      </small>
+
+      @if (updateError) {
+        <div class="sports-alert" role="alert">{{ updateError }}</div>
+      }
+
+      @if (updateResponse; as summary) {
+        <div class="sports-summary">
+          <div><strong>{{ summary.official_games }}</strong><span>Juegos oficiales</span></div>
+          <div><strong>{{ summary.final_games }}</strong><span>Juegos finalizados</span></div>
+          <div><strong>{{ summary.predictions_matched }}</strong><span>Predicciones encontradas</span></div>
+          <div><strong>{{ summary.predictions_updated }}</strong><span>Predicciones actualizadas</span></div>
+        </div>
+
+        @if (summary.not_found.length) {
+          <div class="alert alert-warning mt-3 mb-0" role="alert">
+            Sin predicción guardada: {{ summary.not_found.join(', ') }}
+          </div>
+        }
+      }
+    }
+    </app-card>
+</div>

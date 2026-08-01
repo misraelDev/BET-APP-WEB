@@ -1,0 +1,100 @@
+<div class="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+  <div>
+    <h2 class="mb-1 text-base font-semibold">Rendimiento de predicciones</h2>
+    <p class="m-0 text-sm text-gray-500">Resultados liquidados en unidades fijas de 100.</p>
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <app-select ariaLabel="Liga" [value]="league" [options]="leagueOptions" (valueChange)="league = $any($event); loadStats()" />
+    <app-select ariaLabel="Periodo" [value]="days" [options]="periodOptions" (valueChange)="days = +$event; loadStats()" />
+  </div>
+</div>
+
+@if (error) {
+  <div class="sports-alert" role="alert">
+    {{ error }}
+    <button type="button" class="ml-3 border border-red-300 px-3 py-1 text-xs font-semibold" (click)="loadStats()">Reintentar</button>
+  </div>
+}
+
+@if (!loading && !error && !stats) {
+  <div class="border border-gray-200 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-950">
+    No hay estadísticas disponibles para el periodo seleccionado.
+  </div>
+}
+
+@if (stats; as data) {
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
+    <div class="md:col-span-2 xl:col-span-12">
+      <app-stat-card-grid [items]="summaryCards(data)" />
+    </div>
+
+    <div class="md:col-span-2 xl:col-span-8">
+      <app-card cardTitle="Evolución del balance">
+        <apx-chart
+          [chart]="balanceChart.chart!"
+          [series]="balanceChart.series!"
+          [xaxis]="balanceChart.xaxis!"
+          [yaxis]="balanceChart.yaxis!"
+          [colors]="balanceChart.colors!"
+          [stroke]="balanceChart.stroke!"
+          [fill]="balanceChart.fill!"
+          [dataLabels]="balanceChart.dataLabels!"
+          [grid]="balanceChart.grid!"
+          [tooltip]="balanceChart.tooltip!"
+        />
+      </app-card>
+    </div>
+    <div class="md:col-span-2 xl:col-span-4">
+      <app-card cardTitle="Acierto por mercado">
+        <apx-chart
+          [chart]="marketChart.chart!"
+          [series]="marketChart.series!"
+          [xaxis]="marketChart.xaxis!"
+          [yaxis]="marketChart.yaxis!"
+          [colors]="marketChart.colors!"
+          [plotOptions]="marketChart.plotOptions!"
+          [dataLabels]="marketChart.dataLabels!"
+          [grid]="marketChart.grid!"
+          [tooltip]="marketChart.tooltip!"
+        />
+      </app-card>
+    </div>
+
+    <div class="md:col-span-2 xl:col-span-7">
+      <app-card cardTitle="Rendimiento por mercado" blockClass="p-0">
+        <div class="overflow-x-auto">
+          <table class="sports-table">
+            <thead><tr><th>Mercado</th><th>Acierto</th><th>G/P/N</th><th class="text-end">Balance</th></tr></thead>
+            <tbody>
+              @for (market of data.markets; track market.market) {
+                <tr>
+                  <td><strong>{{ market.label }}</strong></td>
+                  <td>{{ market.hit_rate | number: '1.1-1' }}%</td>
+                  <td>{{ market.won }} / {{ market.lost }} / {{ market.push }}</td>
+                  <td class="text-right" [ngClass]="unitsClass(market.net_units)">{{ units(market.net_units) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </app-card>
+    </div>
+    <div class="md:col-span-2 xl:col-span-5">
+      <app-card cardTitle="Liquidaciones recientes" blockClass="p-0">
+        <div class="divide-y divide-gray-200 dark:divide-gray-800">
+          @for (item of data.recent; track item.date + item.home_team) {
+            <div class="flex items-center justify-between gap-4 px-5 py-3">
+              <div>
+                <span class="block text-[10px] uppercase text-gray-500">{{ item.league }} · {{ item.date | date: 'dd MMM' }}</span>
+                <strong class="block text-xs">{{ item.away_team }} vs {{ item.home_team }}</strong>
+              </div>
+              <b [ngClass]="unitsClass(item.net_units)">{{ units(item.net_units) }}</b>
+            </div>
+          } @empty {
+            <div class="p-8 text-center text-sm text-gray-500">Todavía no hay predicciones liquidadas.</div>
+          }
+        </div>
+      </app-card>
+    </div>
+  </div>
+}

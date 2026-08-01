@@ -1,0 +1,99 @@
+<div class="sports-page">
+  <app-card [cardTitle]="title">
+    @if (activeView === 'generate') {
+      <form class="sports-form" (ngSubmit)="generate()">
+        <div class="sports-field">
+          <label class="sports-label" for="tennis-date">Fecha</label>
+          <input id="tennis-date" class="sports-input" type="date" name="date" [(ngModel)]="date" (change)="resetGenerationPage()" required />
+        </div>
+        <div class="sports-field">
+          <label class="sports-label" for="tennis-tour">Circuito</label>
+          <app-select id="tennis-tour" name="tour" [value]="tour" [options]="tours" (valueChange)="tour = $any($event); resetGenerationPage()" />
+        </div>
+        <div class="sports-field">
+          <label class="sports-label" for="tennis-limit">Partidos</label>
+          <app-select id="tennis-limit" name="limit" [value]="limit" [options]="matchCountOptions" [disabled]="countLoading || !availableMatches" (valueChange)="limit = $any($event)" />
+          <small>{{ countLoading ? 'Consultando cartelera…' : (availableMatches ?? 0) + ' partidos disponibles' }}</small>
+        </div>
+        <button class="sports-button" type="submit" [disabled]="working || countLoading || !availableMatches">{{ working ? 'Generando…' : 'Generar y guardar' }}</button>
+      </form>
+
+      @if (response; as data) {
+        <div class="sports-summary">
+          <div><strong>{{ data.matches_found }}</strong><span>Partidos encontrados</span></div>
+          <div><strong>{{ data.matches_returned }}</strong><span>Predicciones generadas</span></div>
+          <div><strong>{{ data.persistence?.inserted ?? 0 }}</strong><span>Nuevos registros</span></div>
+          <div><strong>{{ data.persistence?.updated ?? 0 }}</strong><span>Registros actualizados</span></div>
+        </div>
+        <ng-container *ngTemplateOutlet="predictionTable; context: { predictions: data.predictions }" />
+      }
+    } @else if (activeView === 'results') {
+      <div class="sports-form !flex w-full !max-w-none flex-nowrap items-end overflow-x-auto pb-1">
+        <div class="sports-field min-w-40 flex-1 basis-0">
+          <label class="sports-label" for="tennis-results-date">Fecha</label>
+          <input id="tennis-results-date" class="sports-input" type="date" [(ngModel)]="date" (change)="changeResultsFilter()" />
+        </div>
+        <div class="sports-field min-w-36 flex-1 basis-0">
+          <label class="sports-label" for="tennis-results-tour">Circuito</label>
+          <app-select id="tennis-results-tour" [value]="tour" [options]="tours" (valueChange)="tour = $any($event); changeResultsFilter()" />
+        </div>
+        <div class="sports-field min-w-44 flex-1 basis-0">
+          <label class="sports-label" for="tennis-results-hour">Hora</label>
+          <app-select id="tennis-results-hour" [value]="resultsHour" [options]="hourOptions" (valueChange)="resultsHour = $any($event); changeResultsFilter()" />
+        </div>
+        <div class="sports-field min-w-36 flex-1 basis-0">
+          <label class="sports-label" for="tennis-results-market">Mercado</label>
+          <app-select id="tennis-results-market" [value]="resultsMarket" [options]="marketOptions" (valueChange)="resultsMarket = $any($event); changeResultsFilter()" />
+        </div>
+        <div class="sports-field min-w-48 flex-1 basis-0">
+          <label class="sports-label" for="tennis-results-probability">Probabilidad mínima</label>
+          <app-select id="tennis-results-probability" [value]="resultsMinProbability" [options]="probabilityOptions" (valueChange)="resultsMinProbability = $any($event); changeResultsFilter()" />
+        </div>
+        <div class="shrink-0"><app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showNavigation]="false" (pageSizeChange)="changeResultsPageSize($event)" /></div>
+      </div>
+      <ng-container *ngTemplateOutlet="predictionTable; context: { predictions: storedPredictions }" />
+      <app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showPageSize]="false" (pageChange)="changeResultsPage($event)" />
+    } @else {
+      <form class="sports-form" (ngSubmit)="updateResults()">
+        <div class="sports-field"><label class="sports-label" for="tennis-update-date">Fecha</label><input id="tennis-update-date" class="sports-input" type="date" name="date" [(ngModel)]="date" required /></div>
+        <div class="sports-field"><label class="sports-label" for="tennis-update-tour">Circuito</label><app-select id="tennis-update-tour" name="tour" [value]="tour" [options]="tours" (valueChange)="tour = $any($event)" /></div>
+        <button class="sports-button" type="submit" [disabled]="working">Consultar y actualizar</button>
+      </form>
+      @if (updateResponse; as summary) {
+        <div class="sports-summary"><div><strong>{{ summary.final_matches }}</strong><span>Partidos finalizados</span></div><div><strong>{{ summary.predictions_matched }}</strong><span>Predicciones encontradas</span></div><div><strong>{{ summary.predictions_updated }}</strong><span>Predicciones actualizadas</span></div></div>
+      }
+    }
+
+    @if (error) { <div class="sports-alert" role="alert">{{ error }}</div> }
+  </app-card>
+</div>
+
+<ng-template #predictionTable let-predictions="predictions">
+  <div class="sports-table-shell">
+    <table class="sports-table min-w-[1080px]">
+      <thead><tr><th>Partido</th>@for (market of markets; track market.key) { <th><app-market-label [kind]="market.key" [label]="market.label" /></th> }@if (activeView === 'results') { <th>Balance</th> }</tr></thead>
+      <tbody>
+        @for (prediction of predictions; track trackPrediction($index, prediction)) {
+          <tr>
+            <td>
+              <span class="sports-caption">{{ prediction.tour }} · {{ prediction.tournament }}</span>
+              <strong>{{ prediction.player_one }} vs {{ prediction.player_two }}</strong>
+              <small>{{ prediction.round || 'Ronda por confirmar' }} · {{ prediction.kickoff | date: 'shortTime' }}</small>
+            </td>
+            @for (market of markets; track market.key) {
+              <td>
+                <span class="market-caption">{{ market.caption }}</span>
+                <strong [class.no-signal]="!prediction.markets[market.key].available">{{ selection(prediction, market.key) }}</strong>
+                @if (prediction.markets[market.key].probability !== null) {
+                  <app-probability-bar [value]="prediction.markets[market.key].probability" />
+                } @else { <small>{{ prediction.markets[market.key].reason || 'Sin datos suficientes' }}</small> }
+                @if (activeView === 'results') { <app-market-status [outcome]="marketOutcome(prediction, market.key)" [units]="marketUnits(prediction, market.key)" /> }
+              </td>
+            }
+            @if (activeView === 'results') { <td><strong>{{ settlement(prediction)?.net_units ?? '—' }}</strong><small>Unidades netas</small></td> }
+          </tr>
+        } @empty { <tr><td [attr.colspan]="markets.length + (activeView === 'results' ? 2 : 1)" class="sports-empty">No hay predicciones de tenis para esta fecha.</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</ng-template>

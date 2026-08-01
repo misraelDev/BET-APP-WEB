@@ -1,0 +1,50 @@
+import { StatCard, type StatCardProps } from "@/components/stat-card"
+
+const stats: StatCardProps[] = [
+  {
+    title: "Total Users",
+    value: "78,250",
+    percentage: "70.5%",
+    trend: "up",
+    chartType: "bar",
+    color: "#3b82f6",
+    data: [40, 55, 45, 60, 50, 65, 48, 58, 42, 70, 52, 62, 46, 68, 50, 60, 44, 66, 54, 58],
+  },
+  {
+    title: "Total Order",
+    value: "18,800",
+    percentage: "27.4%",
+    trend: "down",
+    chartType: "area",
+    color: "#ef4444",
+    data: [70, 78, 82, 75, 68, 60, 52, 46, 40, 44, 38, 42, 36, 48, 34, 40, 32, 44, 30, 38],
+  },
+  {
+    title: "Total Sales",
+    value: "$35,078",
+    percentage: "27.4%",
+    trend: "down",
+    chartType: "bar",
+    color: "#f59e0b",
+    data: [55, 62, 50, 65, 58, 60, 48, 66, 52, 44, 68, 56, 50, 62, 46, 58, 40, 64, 54, 60],
+  },
+  {
+    title: "Total Marketing",
+    value: "4,42,236",
+    percentage: "59.3%",
+    trend: "up",
+    chartType: "area",
+    color: "#3b82f6",
+    data: [30, 34, 40, 36, 48, 42, 55, 46, 60, 50, 44, 58, 52, 66, 48, 62, 54, 70, 58, 64],
+  },
+]
+
+export function StatsGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <StatCard key={stat.title} {...stat} />
+      ))}
+    </div>
+  )
+}

@@ -1,0 +1,37 @@
+<aside class="flex h-full w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+  <a routerLink="/dashboard/default" class="flex h-16 items-center gap-3 border-b border-gray-200 px-5 dark:border-gray-800">
+    <span class="grid size-8 place-items-center bg-teal-600 text-white"><svg lucideTrophy size="18" aria-hidden="true"></svg></span>
+    <span class="text-base font-semibold text-gray-900 dark:text-gray-100">BET Analytics</span>
+  </a>
+  <nav class="flex-1 overflow-y-auto px-3 py-5" aria-label="Navegación principal">
+    <p class="mb-2 px-3 text-[11px] font-semibold uppercase text-gray-400">Dashboard</p>
+    <a routerLink="/dashboard/default" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="mb-5 flex h-10 items-center gap-3 border-l-2 border-transparent px-3 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900" (click)="navigate.emit()"><svg lucideChartNoAxesCombined size="17" aria-hidden="true"></svg><span>Resumen</span></a>
+    <p class="mb-2 px-3 text-[11px] font-semibold uppercase text-gray-400">Deportes</p>
+    <button type="button" class="flex h-10 w-full items-center justify-between px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900" (click)="baseballOpen.set(!baseballOpen())" [attr.aria-expanded]="baseballOpen()"><span class="flex items-center gap-3"><svg lucideCircleDot size="17" aria-hidden="true"></svg>Béisbol</span>@if (baseballOpen()) { <svg lucideChevronDown size="15" aria-hidden="true"></svg> } @else { <svg lucideChevronRight size="15" aria-hidden="true"></svg> }</button>
+    @if (baseballOpen()) {
+      <div class="mb-3 border-l border-gray-200 pl-2 dark:border-gray-800">
+        <a routerLink="/sports/baseball/generate" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Generar predicción</a>
+        <a routerLink="/sports/baseball/results" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Obtener predicciones</a>
+        <a routerLink="/sports/baseball/update" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Actualizar resultados</a>
+      </div>
+    }
+    <button type="button" class="flex h-10 w-full items-center justify-between px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900" (click)="footballOpen.set(!footballOpen())" [attr.aria-expanded]="footballOpen()"><span class="flex items-center gap-3"><svg lucideGoal size="17" aria-hidden="true"></svg>Fútbol</span>@if (footballOpen()) { <svg lucideChevronDown size="15" aria-hidden="true"></svg> } @else { <svg lucideChevronRight size="15" aria-hidden="true"></svg> }</button>
+    @if (footballOpen()) {
+      <div class="mb-3 border-l border-gray-200 pl-2 dark:border-gray-800">
+        <a routerLink="/sports/football/generate" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Generar predicción</a>
+        <a routerLink="/sports/football/results" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Obtener predicciones</a>
+        <a routerLink="/sports/football/update" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Actualizar resultados</a>
+      </div>
+    }
+    <button type="button" class="flex h-10 w-full items-center justify-between px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900" (click)="tennisOpen.set(!tennisOpen())" [attr.aria-expanded]="tennisOpen()"><span class="flex items-center gap-3"><svg lucideCircle size="17" strokeWidth="1.8" aria-hidden="true"></svg>Tenis</span>@if (tennisOpen()) { <svg lucideChevronDown size="15" aria-hidden="true"></svg> } @else { <svg lucideChevronRight size="15" aria-hidden="true"></svg> }</button>
+    @if (tennisOpen()) {
+      <div class="border-l border-gray-200 pl-2 dark:border-gray-800">
+        <a routerLink="/sports/tennis/generate" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Generar predicción</a>
+        <a routerLink="/sports/tennis/results" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Obtener predicciones</a>
+        <a routerLink="/sports/tennis/update" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400" (click)="navigate.emit()">Actualizar resultados</a>
+      </div>
+    }
+    <button type="button" class="flex h-10 w-full items-center justify-between px-3 text-sm font-medium text-gray-800 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900" (click)="basketballOpen.set(!basketballOpen())"><span class="flex items-center gap-3"><svg lucideCircleDotDashed size="17" aria-hidden="true"></svg>Básquetbol</span>@if(basketballOpen()){<svg lucideChevronDown size="15" />}@else{<svg lucideChevronRight size="15" />}</button>
+    @if (basketballOpen()) { <div class="mb-3 border-l border-gray-200 pl-2 dark:border-gray-800"><a routerLink="/sports/basketball/generate" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400">Generar predicción</a><a routerLink="/sports/basketball/results" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400">Obtener predicciones</a><a routerLink="/sports/basketball/update" routerLinkActive="border-teal-600 bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-white" class="block border-l-2 border-transparent px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400">Actualizar resultados</a></div> }
+  </nav>
+</aside>

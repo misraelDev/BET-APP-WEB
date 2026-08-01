@@ -1,0 +1,12 @@
+<span class="inline-flex items-center gap-1.5">
+  @switch (kind()) {
+    @case ('winner') { <svg lucideTrophy size="13" aria-hidden="true"></svg> }
+    @case ('handicap') { <svg lucideScale size="13" aria-hidden="true"></svg> }
+    @case ('double_chance') { <svg lucideShieldCheck size="13" aria-hidden="true"></svg> }
+    @case ('goals') { <svg lucideGoal size="13" aria-hidden="true"></svg> }
+    @case ('corners') { <svg lucideFlag size="13" aria-hidden="true"></svg> }
+    @case ('confidence') { <svg lucideGauge size="13" aria-hidden="true"></svg> }
+    @default { <svg lucideArrowUpDown size="13" aria-hidden="true"></svg> }
+  }
+  {{ label() }}
+</span>

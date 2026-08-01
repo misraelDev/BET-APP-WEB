@@ -1,0 +1,151 @@
+<div class="sports-page">
+    <app-card [cardTitle]="title">
+      @if (activeView === 'generate') {
+        <form class="sports-form" (ngSubmit)="generate()">
+          <div class="sports-field">
+            <label class="sports-label" for="football-date">Fecha</label>
+            <input id="football-date" class="sports-input" type="date" name="date" [(ngModel)]="date" required />
+          </div>
+          <div class="sports-field">
+            <label class="sports-label" for="football-league">Liga</label>
+            <app-select id="football-league" name="league" [value]="league" [options]="leagues" (valueChange)="league = $any($event)" />
+          </div>
+          <div class="sports-field">
+            <label class="sports-label" for="football-limit">Partidos</label>
+            <input id="football-limit" class="sports-input" type="number" name="limit" min="1" max="20" [(ngModel)]="limit" />
+          </div>
+          <button class="sports-button" type="submit" [disabled]="working">Generar y guardar</button>
+        </form>
+
+        @if (response; as data) {
+          <div class="sports-summary">
+            <div><strong>{{ data.fixtures_found }}</strong><span>Partidos encontrados</span></div>
+            <div><strong>{{ data.fixtures_eligible }}</strong><span>Partidos elegibles</span></div>
+            <div><strong>{{ data.fixtures_returned }}</strong><span>Predicciones generadas</span></div>
+            <div><strong>{{ data.persistence?.inserted ?? 0 }}</strong><span>Nuevos registros</span></div>
+          </div>
+          <ng-container *ngTemplateOutlet="predictionTable; context: { predictions: data.predictions }" />
+        }
+      } @else if (activeView === 'results') {
+        <div class="sports-form !flex w-full !max-w-none flex-nowrap items-end overflow-x-auto pb-1">
+          <div class="sports-field min-w-40 flex-1 basis-0">
+            <label class="sports-label" for="results-date">Fecha</label>
+            <input id="results-date" class="sports-input" type="date" [(ngModel)]="date" (change)="changeResultsFilter()" />
+          </div>
+          <div class="sports-field min-w-40 flex-1 basis-0">
+            <label class="sports-label" for="results-league">Liga</label>
+            <app-select id="results-league" [value]="league" [options]="leagues" (valueChange)="league = $any($event); changeResultsFilter()" />
+          </div>
+          <div class="sports-field min-w-44 flex-1 basis-0">
+            <label class="sports-label" for="football-results-hour">Hora</label>
+            <app-select id="football-results-hour" [value]="resultsHour" [options]="hourOptions" (valueChange)="resultsHour = $any($event); changeResultsFilter()" />
+          </div>
+          <div class="shrink-0"><app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showNavigation]="false" (pageSizeChange)="changeResultsPageSize($event)" /></div>
+        </div>
+        <div class="sports-table-shell">
+          <table class="sports-table min-w-[1320px]">
+            <thead>
+              <tr>
+                <th>Partido</th>
+                @for (market of markets; track market.key) {
+                  <th><app-market-label [kind]="market.key" [label]="market.label" /></th>
+                }
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of storedResults; track record.document_id) {
+                <tr>
+                  <td>
+                    <span class="sports-caption">{{ record.prediction.league }}</span>
+                    <strong>{{ record.prediction.away_team }} vs {{ record.prediction.home_team }}</strong>
+                    <small>{{ record.prediction.kickoff | date: 'shortTime' }}</small>
+                    @if (record.settlement) {
+                      <small>Final: {{ record.settlement.away_score }}–{{ record.settlement.home_score }}</small>
+                    }
+                  </td>
+                  @for (market of markets; track market.key) {
+                    <td>
+                      <span class="market-caption">{{ market.caption }}</span>
+                      <strong>{{ selection(record.prediction, market.key) }}</strong>
+                      <app-probability-bar [value]="probability(record.prediction, market.key)" />
+                      <app-market-status
+                        [outcome]="record.settlement?.markets?.[market.key]?.outcome ?? 'pending'"
+                        [units]="record.settlement?.markets?.[market.key]?.units ?? null"
+                      />
+                    </td>
+                  }
+                  <td><strong>{{ record.settlement?.net_units ?? '—' }}</strong><small>Unidades netas</small></td>
+                </tr>
+              } @empty {
+                <tr><td [attr.colspan]="markets.length + 2" class="sports-empty">No hay predicciones guardadas para esta fecha.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showPageSize]="false" (pageChange)="changeResultsPage($event)" />
+      } @else {
+        <form class="sports-form sports-form--two" (ngSubmit)="updateResults()">
+          <div class="sports-field">
+            <label class="sports-label" for="update-date">Fecha de los partidos</label>
+            <input id="update-date" class="sports-input" type="date" name="updateDate" [(ngModel)]="date" required />
+          </div>
+          <button class="sports-button" type="submit" [disabled]="working">Consultar y actualizar</button>
+        </form>
+        <small class="sports-help">Solo se actualizan mercados con señal y partidos finalizados.</small>
+        @if (updateResponse; as summary) {
+          <div class="sports-summary">
+            <div><strong>{{ summary.official_fixtures }}</strong><span>Partidos oficiales</span></div>
+            <div><strong>{{ summary.final_fixtures }}</strong><span>Partidos finalizados</span></div>
+            <div><strong>{{ summary.predictions_matched }}</strong><span>Predicciones encontradas</span></div>
+            <div><strong>{{ summary.predictions_updated }}</strong><span>Predicciones actualizadas</span></div>
+          </div>
+        }
+      }
+
+      @if (error) {
+        <div class="sports-alert" role="alert">{{ error }}</div>
+      }
+    </app-card>
+</div>
+
+<ng-template #predictionTable let-predictions="predictions">
+  <div class="sports-table-shell">
+    <table class="sports-table min-w-[1320px]">
+      <thead>
+        <tr>
+          <th>Partido</th>
+          @for (market of markets; track market.key) {
+            <th><app-market-label [kind]="market.key" [label]="market.label" /></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (prediction of predictions; track trackPrediction($index, prediction)) {
+          <tr>
+            <td>
+              <span class="sports-caption">{{ prediction.league }}</span>
+              <strong>{{ prediction.away_team }} vs {{ prediction.home_team }}</strong>
+              <small>{{ prediction.kickoff | date: 'shortTime' }}</small>
+            </td>
+            @for (market of markets; track market.key) {
+              <td>
+                <span class="market-caption">{{ market.caption }}</span>
+                <strong [class.no-signal]="probability(prediction, market.key) === null">
+                  {{ selection(prediction, market.key) }}
+                </strong>
+                @if (probability(prediction, market.key) !== null) {
+                  <app-probability-bar [value]="probability(prediction, market.key)" />
+                } @else {
+                  <small>{{ reason(prediction, market.key) || 'Sin datos suficientes' }}</small>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr><td [attr.colspan]="markets.length + 1" class="sports-empty">No hay partidos elegibles para esta fecha.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>

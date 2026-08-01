@@ -1,0 +1,4 @@
+@if (normalized() !== null) {
+  <span class="mt-1 block text-[10px] text-gray-500">Probabilidad {{ normalized() }}%</span>
+  <span class="mt-1 block h-1 w-24 overflow-hidden bg-gray-100 dark:bg-gray-800"><i class="block h-full" [class]="tone()" [style.width.%]="normalized()"></i></span>
+} @else { <span class="mt-1 block text-[10px] text-gray-400">No disponible</span> }

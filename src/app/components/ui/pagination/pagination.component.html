@@ -1,0 +1,18 @@
+<div [class]="showNavigation() ? 'mt-4 flex min-h-14 flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 text-xs text-gray-500 dark:bg-gray-950 dark:text-gray-400' : 'sports-field'" aria-label="Paginación">
+  @if (showPageSize()) {
+    <label [class]="showNavigation() ? 'flex items-center gap-2' : 'contents'">
+      <span [class]="showNavigation() ? '' : 'sports-label'">Mostrar</span>
+      <app-select [value]="pageSize()" [options]="selectOptions()" [compact]="true" ariaLabel="Registros por página" (valueChange)="pageSizeChange.emit(+$event)" />
+    </label>
+  }
+  @if (showNavigation()) {
+    <span>{{ firstItem }}–{{ lastItem }} de {{ total() }} registros</span>
+    <div class="flex items-center gap-3">
+      <span>Página {{ page() }} de {{ totalPages() || 1 }}</span>
+      <div class="flex border border-gray-200 dark:border-gray-700">
+        <button type="button" class="grid size-8 place-items-center text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-300" [disabled]="page() <= 1" title="Página anterior" (click)="pageChange.emit(page() - 1)"><svg lucideChevronLeft size="16" aria-hidden="true"></svg></button>
+        <button type="button" class="grid size-8 place-items-center border-l border-gray-200 text-gray-600 disabled:cursor-not-allowed disabled:opacity-30 dark:border-gray-700 dark:text-gray-300" [disabled]="page() >= totalPages()" title="Página siguiente" (click)="pageChange.emit(page() + 1)"><svg lucideChevronRight size="16" aria-hidden="true"></svg></button>
+      </div>
+    </div>
+  }
+</div>
