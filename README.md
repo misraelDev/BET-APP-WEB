@@ -118,6 +118,14 @@ Si el backend está en otro dominio, configura su URL pública:
 apiUrl: 'https://api.ejemplo.com'
 ```
 
+En Netlify no es necesario editar el archivo. Configura esta variable:
+
+```text
+API_URL=https://tu-backend-publico.com
+```
+
+El script `prebuild` ejecuta `scripts/configure-environment.mjs` y escribe la URL en `environment.prod.ts` antes de compilar. Si `API_URL` no está definida, conserva el valor existente del archivo.
+
 No guardes contraseñas, claves privadas ni credenciales de MongoDB en los environments. Su contenido queda visible en el JavaScript del navegador.
 
 ## Rutas principales
