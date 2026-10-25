@@ -1,0 +1,140 @@
+<main class="min-w-0 space-y-5">
+  <header class="relative overflow-hidden border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950 sm:p-7">
+    <div class="absolute inset-y-0 right-0 hidden w-1/3 opacity-60 md:block" aria-hidden="true">
+      <div class="absolute inset-y-5 right-8 w-52 border border-teal-700/20"></div>
+      <div class="absolute right-[8.5rem] top-1/2 size-24 -translate-y-1/2 rounded-full border border-teal-700/20"></div>
+      <div class="absolute right-0 top-1/2 h-px w-64 bg-teal-700/20"></div>
+    </div>
+    <div class="relative max-w-2xl">
+      <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700 dark:text-teal-400">Fútbol · publicaciones de analistas</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Rankings, en el orden que fueron publicados.</h1>
+      <p class="mt-2 max-w-xl text-sm leading-6 text-gray-600 dark:text-gray-400">Consulta selecciones por liga o generales. La aplicación muestra el contenido recibido; no completa ni recalcula filas.</p>
+    </div>
+    <div class="relative mt-5 flex gap-2 border-t border-gray-200 pt-4 dark:border-gray-800">
+      <button type="button" class="border-b-2 px-3 py-2 text-sm font-semibold" [class.border-teal-600]="activeTab === 'browse'" [class.text-teal-700]="activeTab === 'browse'" [class.border-transparent]="activeTab !== 'browse'" [class.text-gray-500]="activeTab !== 'browse'" (click)="activeTab = 'browse'">Consultar</button>
+      <button type="button" class="border-b-2 px-3 py-2 text-sm font-semibold" [class.border-teal-600]="activeTab === 'publish'" [class.text-teal-700]="activeTab === 'publish'" [class.border-transparent]="activeTab !== 'publish'" [class.text-gray-500]="activeTab !== 'publish'" (click)="activeTab = 'publish'">Publicar lote</button>
+    </div>
+  </header>
+
+  @if (activeTab === 'browse') {
+    <section class="border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-5" aria-label="Filtros de rankings">
+      <form class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-6" (ngSubmit)="applyFilters()">
+        <label class="flex flex-col gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">Fecha objetivo
+          <input class="h-10 border border-gray-300 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900" type="date" name="date" [(ngModel)]="date" />
+        </label>
+        <label class="flex flex-col gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">Liga
+          <select class="h-10 border border-gray-300 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900" name="league" [(ngModel)]="league"><option [ngValue]="''">Todas las ligas</option>@for (entry of leagues.slice(1); track entry.value) { <option [value]="entry.value">{{ entry.label }}</option> }</select>
+        </label>
+        <label class="flex flex-col gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">Analista
+          <input class="h-10 border border-gray-300 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900" type="search" name="analyst" placeholder="Nombre exacto" [(ngModel)]="analyst" />
+        </label>
+        <label class="flex flex-col gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">Alcance
+          <select class="h-10 border border-gray-300 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900" name="scope" [(ngModel)]="scope">@for (entry of scopeTypes; track entry.value) { <option [value]="entry.value">{{ entry.label }}</option> }</select>
+        </label>
+        <label class="flex flex-col gap-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 sm:col-span-2 xl:col-span-1">Tipo de ranking
+          <select class="h-10 border border-gray-300 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900" name="rankingType" [(ngModel)]="rankingType">@for (entry of rankingTypes; track entry.value) { <option [value]="entry.value">{{ entry.label }}</option> }</select>
+        </label>
+        <button class="h-10 self-end bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:opacity-60" type="submit" [disabled]="loading">{{ loading ? 'Buscando…' : 'Aplicar filtros' }}</button>
+      </form>
+      <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800">
+        <span>{{ total }} ranking(s) · fecha resuelta en America/Mexico_City</span>
+        <span>Los registros api-verify son pruebas, no rendimiento deportivo.</span>
+      </div>
+    </section>
+
+    @if (error) { <div class="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300" role="alert">{{ error }}</div> }
+
+    <div class="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.5fr)]">
+      <section class="min-w-0 border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950" aria-label="Rankings encontrados">
+        <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+          <div><h2 class="text-sm font-semibold">Publicaciones</h2><p class="mt-0.5 text-[11px] text-gray-500">{{ total }} resultados para {{ date }}</p></div>
+          <button type="button" class="text-xs font-semibold text-teal-700 hover:underline dark:text-teal-400" (click)="load()">Actualizar</button>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (ranking of rankings; track trackRanking($index, ranking)) {
+            <button type="button" class="group block w-full border-l-[3px] border-transparent px-4 py-4 text-left transition-colors hover:bg-gray-50 focus:bg-teal-50 focus:outline-none dark:bg-gray-950 dark:hover:bg-gray-900 dark:focus:bg-gray-900" [class.border-teal-600]="selected?.ranking?.ranking_id === ranking.ranking_id" [class.bg-teal-50]="selected?.ranking?.ranking_id === ranking.ranking_id" (click)="open(ranking)">
+              <span class="flex items-center justify-between gap-3"><span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">{{ ranking.scope === 'general' ? 'General' : leagueName(ranking.competition) }}</span><span class="font-mono text-[10px] text-gray-400">v{{ ranking.version }}</span></span>
+              <strong class="mt-1 block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ rankingTypeName(ranking.ranking_type) }}</strong>
+              <span class="mt-2 flex items-center justify-between gap-2 text-xs text-gray-500"><span>{{ ranking.analyst }}</span><span>{{ ranking.rows.length }} filas</span></span>
+              <span class="mt-2 block truncate font-mono text-[10px] text-gray-400">{{ ranking.ranking_id }}</span>
+            </button>
+          } @empty {
+            <div class="px-5 py-12 text-center">
+              <span class="mx-auto grid size-10 place-items-center border border-teal-200 text-lg font-semibold text-teal-700 dark:border-teal-900 dark:text-teal-400">0</span>
+              <p class="mt-3 text-sm font-medium text-gray-800 dark:text-gray-200">No hay rankings para estos filtros.</p>
+              <p class="mt-1 text-xs text-gray-500">Prueba otra fecha o elimina algún filtro.</p>
+            </div>
+          }
+        </div>
+        <div class="border-t border-gray-200 p-2 dark:border-gray-800"><app-pagination [page]="page" [pageSize]="pageSize" [total]="total" [totalPages]="totalPages" [showPageSize]="false" (pageChange)="changePage($event)" /></div>
+      </section>
+
+      <section class="min-w-0" aria-label="Detalle del ranking">
+        @if (detailLoading) { <div class="border border-gray-200 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-950">Abriendo revisión…</div> }
+        @else if (selected; as detail) {
+          <article class="overflow-hidden border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+            <header class="border-b border-gray-200 p-4 dark:border-gray-800 sm:p-5">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-teal-400">{{ detail.ranking.scope === 'general' ? 'Selecciones entre ligas' : leagueName(detail.ranking.competition) }}</p><h2 class="mt-1 text-xl font-semibold tracking-tight">{{ rankingTypeName(detail.ranking.ranking_type) }}</h2><p class="mt-1 text-xs text-gray-500">Por {{ detail.ranking.analyst }} · objetivo {{ detail.ranking.target_date }}</p></div>
+                <div class="flex flex-col items-end gap-1 text-right"><span class="border border-gray-200 px-2 py-1 font-mono text-[10px] dark:border-gray-700">REV {{ detail.ranking.version }} / {{ detail.current_version }}</span><span class="text-[10px] text-gray-500">{{ detail.ranking.is_current ? 'Vigente' : 'Revisión histórica' }}</span></div>
+              </div>
+              @if (detail.versions.length > 1) {
+                <div class="mt-4 flex flex-wrap items-center gap-2"><span class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Historial</span>@for (version of detail.versions; track version.version_id) { <button type="button" class="border px-2.5 py-1 text-xs dark:border-gray-700" [class.border-teal-700]="version.version === detail.ranking.version" [class.bg-teal-700]="version.version === detail.ranking.version" [class.text-white]="version.version === detail.ranking.version" [class.border-gray-300]="version.version !== detail.ranking.version" (click)="open(detail.ranking, version.version)">v{{ version.version }}</button> }</div>
+              }
+              <div class="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-3 text-xs dark:border-gray-800 sm:grid-cols-4">
+                <div><span class="block text-[9px] font-bold uppercase tracking-wider text-gray-400">Orden declarado</span><span class="mt-1 block text-gray-700 dark:text-gray-300">{{ detail.ranking.sort_criterion }} · {{ detail.ranking.sort_direction }}</span></div>
+                <div><span class="block text-[9px] font-bold uppercase tracking-wider text-gray-400">Método</span><span class="mt-1 block text-gray-700 dark:text-gray-300">{{ detail.ranking.method_version }}</span></div>
+                <div><span class="block text-[9px] font-bold uppercase tracking-wider text-gray-400">Prompt</span><span class="mt-1 block text-gray-700 dark:text-gray-300">{{ detail.ranking.analysis_prompt.prompt_id }} · v{{ detail.ranking.analysis_prompt.version }}</span></div>
+                <div><span class="block text-[9px] font-bold uppercase tracking-wider text-gray-400">Recibido</span><span class="mt-1 block text-gray-700 dark:text-gray-300">{{ formatUtc(detail.ranking.received_at) }}</span></div>
+              </div>
+            </header>
+
+            <div class="px-4 py-4 sm:px-5">
+              <div class="mb-3 flex items-center justify-between"><h3 class="text-xs font-bold uppercase tracking-[0.15em] text-gray-500">Selecciones del analista</h3><span class="font-mono text-[10px] text-gray-400">{{ detail.ranking.rows.length }} filas · orden original</span></div>
+              <ol class="relative space-y-0 border-l border-teal-200 dark:border-teal-900">
+                @for (row of detail.ranking.rows; track row.position) {
+                  <li class="relative ml-4 border-b border-gray-100 py-4 last:border-0 dark:border-gray-800 sm:ml-6">
+                    <span class="absolute -left-[1.8rem] top-4 grid size-7 place-items-center border border-teal-700 bg-white font-mono text-[11px] font-bold text-teal-800 dark:bg-gray-950 dark:text-teal-300">{{ row.position }}</span>
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                      <div class="min-w-0"><span class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{{ leagueName(row.league) }} · #{{ row.event_id }}</span><h4 class="mt-1 text-sm font-semibold">{{ row.home_team }} <span class="font-normal text-gray-400">vs</span> {{ row.away_team }}</h4><p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ marketName(row.market) }} · {{ selection(row) }}</p><p class="mt-1 text-[10px] text-gray-400">{{ row.kickoff ? formatUtc(row.kickoff) : 'Hora no informada' }} · {{ row.match_status }}</p></div>
+                      <div class="min-w-[100px] border-l-2 border-teal-600 pl-3 text-right"><strong class="block font-mono text-2xl leading-none">{{ row.estimate_status === 'estimated' ? (row.probability + '%') : '—' }}</strong><span class="mt-1 block text-[9px] font-semibold uppercase tracking-wider text-gray-500">{{ row.estimate_status === 'estimated' ? 'Probabilidad' : 'Sin estimación' }}</span>@if (row.confidence !== null) { <span class="mt-1 block text-[10px] text-teal-700 dark:text-teal-400">Confianza {{ row.confidence }}/5</span> }</div>
+                    </div>
+                    @if (row.rationale) { <p class="mt-3 border-l border-gray-200 pl-3 text-xs leading-5 text-gray-600 dark:border-gray-700 dark:text-gray-400">{{ row.rationale }}</p> }
+                    @if (row.no_estimate_reason) { <p class="mt-2 text-xs text-gray-500">{{ row.no_estimate_reason }}</p> }
+                    @if (row.risk) { <p class="mt-2 text-[11px] text-amber-700 dark:text-amber-400"><span class="font-semibold">Riesgo</span> · {{ row.risk }}</p> }
+                    @if (row.expected_value !== null) { <p class="mt-2 text-[11px] text-gray-500">Valor esperado: {{ row.expected_value }} {{ row.expected_value_unit }}</p> }
+                    @if (row.prediction_id && row.version_id) { <p class="mt-2 truncate font-mono text-[9px] text-gray-400" title="{{ row.version_id }}">Pronóstico vinculado · {{ row.prediction_id }} · rev {{ row.version_id.slice(0, 8) }}</p> }
+                  </li>
+                }
+              </ol>
+            </div>
+
+            <footer class="grid grid-cols-1 gap-3 border-t border-gray-200 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-900/40 sm:grid-cols-2">
+              <div><p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Cobertura declarada</p><p class="mt-1 text-xs">{{ detail.ranking.coverage.matches_with_rows ?? '—' }} de {{ detail.ranking.coverage.matches_considered ?? '—' }} partidos · {{ detail.ranking.coverage.coverage_complete ? 'completa según analista' : 'parcial según analista' }}</p></div>
+              <div><p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Limitaciones</p><p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ detail.ranking.coverage.limitations.length ? detail.ranking.coverage.limitations.join(' · ') : 'Sin limitaciones declaradas.' }}</p></div>
+              <p class="text-[10px] text-gray-400 sm:col-span-2">La estructura está validada por la API; la calidad deportiva y la cobertura no están verificadas.</p>
+            </footer>
+          </article>
+        } @else {
+          <div class="flex min-h-72 flex-col items-center justify-center border border-dashed border-gray-300 bg-white px-5 text-center dark:border-gray-700 dark:bg-gray-950"><span class="grid size-12 place-items-center border border-teal-200 font-mono text-sm font-bold text-teal-700 dark:border-teal-900 dark:text-teal-400">01</span><h2 class="mt-4 text-sm font-semibold">Selecciona una publicación</h2><p class="mt-1 max-w-xs text-xs leading-5 text-gray-500">Las posiciones son las que envió el analista. El detalle incluye referencias, riesgos y revisiones.</p></div>
+        }
+      </section>
+    </div>
+  } @else {
+    <section class="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.8fr)]">
+      <div class="border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-5">
+        <div class="mb-4"><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-teal-400">Publicación literal</p><h2 class="mt-1 text-lg font-semibold">Envía el lote elaborado por el analista</h2><p class="mt-1 text-xs leading-5 text-gray-500">Pega el JSON completo con forma <code class="bg-gray-100 px-1 dark:bg-gray-800">&#123; "items": [...] &#125;</code>. No ordenamos ni completamos filas.</p></div>
+        <label for="ranking-payload" class="mb-2 block text-xs font-semibold text-gray-700 dark:text-gray-300">Cuerpo JSON</label>
+        <textarea id="ranking-payload" name="rankingPayload" [(ngModel)]="payloadText" spellcheck="false" class="min-h-[420px] w-full resize-y border border-gray-300 bg-gray-950 p-4 font-mono text-xs leading-5 text-emerald-200 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 dark:border-gray-700" placeholder="{&#10;  &quot;items&quot;: [&#10;    { /* ranking del analista */ }&#10;  ]&#10;}"></textarea>
+        @if (publishError) { <div class="mt-3 border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300" role="alert">{{ publishError }}</div> }
+        @if (publishMessage) { <div class="mt-3 border border-teal-200 bg-teal-50 px-3 py-2 text-xs text-teal-900 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-300" role="status">{{ publishMessage }}</div> }
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3"><span class="text-[10px] text-gray-500">La API valida referencias y devuelve errores descriptivos.</span><button type="button" class="h-10 bg-teal-700 px-5 text-sm font-semibold text-white hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:opacity-50" [disabled]="publishing || !payloadText.trim()" (click)="publish()">{{ publishing ? 'Publicando…' : 'Publicar lote' }}</button></div>
+      </div>
+      <aside class="space-y-4">
+        <div class="border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950"><span class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">Antes de publicar</span><ol class="mt-4 space-y-4 text-xs leading-5 text-gray-600 dark:text-gray-400"><li class="flex gap-3"><span class="font-mono font-bold text-teal-700">01</span><span>Incluye fecha, analista, alcance, tipo y versión exacta del prompt.</span></li><li class="flex gap-3"><span class="font-mono font-bold text-teal-700">02</span><span>Confirma posiciones consecutivas en el mismo orden que las filas enviadas.</span></li><li class="flex gap-3"><span class="font-mono font-bold text-teal-700">03</span><span>Para una fila sin estimación usa <code>not_estimated</code> y explica el motivo; no inventes probabilidad.</span></li><li class="flex gap-3"><span class="font-mono font-bold text-teal-700">04</span><span>Si vinculas un pronóstico, manda juntos su <code>prediction_id</code> y <code>version_id</code> exactos.</span></li></ol></div>
+        <div class="border-l-2 border-amber-500 bg-amber-50 p-4 text-xs leading-5 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"><strong>La API no evalúa el análisis deportivo.</strong><br />Una respuesta aceptada confirma la estructura y el almacenamiento, no la calidad ni la cobertura del ranking.</div>
+        <a class="inline-flex text-xs font-semibold text-teal-700 underline underline-offset-4 dark:text-teal-400" [href]="'https://start-bet-api-rest.xzpbpr.easypanel.host/docs'" target="_blank" rel="noreferrer">Abrir documentación de la API</a>
+      </aside>
+    </section>
+  }
+</main>

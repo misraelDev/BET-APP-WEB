@@ -11,6 +11,7 @@ const TITLES: Record<string, string> = {
   '/sports/football/generate': 'Generar predicción de fútbol',
   '/sports/football/results': 'Obtener predicciones de fútbol',
   '/sports/football/update': 'Actualizar resultados de fútbol',
+  '/sports/football/rankings': 'Rankings de analistas de fútbol',
   '/sports/tennis/generate': 'Generar predicción de tenis',
   '/sports/tennis/results': 'Obtener predicciones de tenis',
   '/sports/tennis/update': 'Actualizar resultados de tenis'

@@ -55,6 +55,10 @@ const routes: Routes = [
         loadComponent: () => import('./features/football/football.component').then((c) => c.FootballComponent)
       },
       {
+        path: 'sports/football/rankings',
+        loadComponent: () => import('./features/football-rankings/football-rankings.component').then((c) => c.FootballRankingsComponent)
+      },
+      {
         path: 'sports/tennis',
         redirectTo: 'sports/tennis/generate',
         pathMatch: 'full'
