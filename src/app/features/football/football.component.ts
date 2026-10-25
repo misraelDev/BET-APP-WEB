@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { HOUR_FILTER_OPTIONS } from 'src/app/shared/hour-filter.options';
 import { apiErrorMessage } from 'src/app/shared/api-error-message';
+import { PROBABILITY_FILTER_OPTIONS } from 'src/app/shared/probability-filter.options';
 
 import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
 import { MarketStatusComponent } from 'src/app/components/ui/market-status/market-status.component';
@@ -51,7 +52,8 @@ export class FootballComponent implements OnInit {
   readonly leagues: Array<{ value: FootballLeague; label: string }> = [
     { value: 'all', label: 'Todas las ligas' },
     { value: 'liga_mx', label: 'Liga MX' },
-    { value: 'brasileirao', label: 'Brasileirão Betano' }
+    { value: 'brasileirao', label: 'Brasileirão Betano' },
+    { value: 'leagues_cup', label: 'Leagues Cup' }
   ];
   limit = 20;
   working = false;
@@ -63,7 +65,11 @@ export class FootballComponent implements OnInit {
   resultsTotal = 0;
   resultsTotalPages = 0;
   resultsHour = 'all';
+  resultsMarket: FootballMarketKey = 'winner';
+  resultsMinProbability = 0;
   readonly hourOptions = HOUR_FILTER_OPTIONS;
+  readonly probabilityOptions = PROBABILITY_FILTER_OPTIONS;
+  readonly marketOptions = this.markets.map(({ key, label }) => ({ value: key, label }));
   updateResponse: FootballUpdateResponse | null = null;
 
   get title(): string {
@@ -84,7 +90,7 @@ export class FootballComponent implements OnInit {
 
   loadResults(): void {
     const requestId = ++this.resultsRequestId;
-    this.runRequest(this.api.getResults(this.date, this.league, this.resultsPage, this.resultsPageSize, this.resultsHour), (value) => {
+    this.runRequest(this.api.getResults(this.date, this.league, this.resultsPage, this.resultsPageSize, this.resultsHour, this.resultsMarket, this.resultsMinProbability), (value) => {
       if (requestId !== this.resultsRequestId) return;
       this.storedResults = value.items;
       this.resultsPage = value.page;

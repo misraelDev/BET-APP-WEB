@@ -40,7 +40,7 @@ export interface FootballPredictionResponse {
   } | null;
 }
 
-export type FootballLeague = 'all' | 'liga_mx' | 'brasileirao';
+export type FootballLeague = 'all' | 'liga_mx' | 'brasileirao' | 'leagues_cup';
 
 export type FootballMarketKey = 'winner' | 'handicap' | 'double_chance' | 'goals' | 'corners' | 'cards';
 

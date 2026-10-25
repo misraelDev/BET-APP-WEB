@@ -24,12 +24,13 @@ export class BaseballApiService {
       .pipe(timeout({ first: 45_000 }));
   }
 
-  getResults(date: string, league: BaseballLeague, page: number, pageSize: number, hour: string): Observable<PaginatedResult<StoredBaseballPrediction>> {
+  getResults(date: string, league: BaseballLeague, page: number, pageSize: number, hour: string, market: string, minProbability: number): Observable<PaginatedResult<StoredBaseballPrediction>> {
     let params = new HttpParams().set('league', league).set('page', page).set('page_size', pageSize);
     if (date) {
       params = params.set('date', date);
     }
     if (hour !== 'all') params = params.set('hour', hour);
+    if (minProbability > 0) params = params.set('market', market).set('min_probability', minProbability);
     return this.http
       .get<StoredBaseballPrediction[]>(`${this.baseUrl}/results`, { params, observe: 'response' })
       .pipe(timeout({ first: 20_000 }), map(paginationFromResponse));

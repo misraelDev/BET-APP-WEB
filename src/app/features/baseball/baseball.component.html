@@ -98,6 +98,14 @@
             <label class="sports-label" for="baseball-results-hour">Hora</label>
             <app-select id="baseball-results-hour" [value]="resultsHour" [options]="hourOptions" (valueChange)="resultsHour = $any($event); changeResultsFilter()" />
           </div>
+          <div class="sports-field min-w-36 flex-1 basis-0">
+            <label class="sports-label" for="baseball-results-market">Mercado</label>
+            <app-select id="baseball-results-market" [value]="resultsMarket" [options]="marketOptions" (valueChange)="resultsMarket = $any($event); changeResultsFilter()" />
+          </div>
+          <div class="sports-field min-w-48 flex-1 basis-0">
+            <label class="sports-label" for="baseball-results-probability">Probabilidad mínima</label>
+            <app-select id="baseball-results-probability" [value]="resultsMinProbability" [options]="probabilityOptions" (valueChange)="resultsMinProbability = $any($event); changeResultsFilter()" />
+          </div>
           <div class="shrink-0"><app-pagination [page]="resultsPage" [pageSize]="resultsPageSize" [total]="resultsTotal" [totalPages]="resultsTotalPages" [showNavigation]="false" (pageSizeChange)="changeResultsPageSize($event)" /></div>
         </div>
         <small class="sports-help">

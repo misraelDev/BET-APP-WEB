@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { HOUR_FILTER_OPTIONS } from 'src/app/shared/hour-filter.options';
 import { apiErrorMessage } from 'src/app/shared/api-error-message';
+import { PROBABILITY_FILTER_OPTIONS } from 'src/app/shared/probability-filter.options';
 
 import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
 import { PaginationComponent } from 'src/app/components/ui/pagination/pagination.component';
@@ -60,10 +61,7 @@ export class TennisComponent implements OnInit {
   resultsMarket: TennisMarketKey = 'winner';
   resultsMinProbability = 0;
   readonly hourOptions = HOUR_FILTER_OPTIONS;
-  readonly probabilityOptions = [0, 50, 55, 60, 65, 70, 75, 80].map((value) => ({
-    value,
-    label: value ? `≥ ${value}%` : 'Cualquier porcentaje'
-  }));
+  readonly probabilityOptions = PROBABILITY_FILTER_OPTIONS;
   readonly marketOptions = this.markets.map((market) => ({ value: market.key, label: market.label }));
 
   get title(): string {

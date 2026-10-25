@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
 import { HOUR_FILTER_OPTIONS } from 'src/app/shared/hour-filter.options';
 import { apiErrorMessage } from 'src/app/shared/api-error-message';
+import { PROBABILITY_FILTER_OPTIONS } from 'src/app/shared/probability-filter.options';
 
 import { BaseballApiService } from './baseball-api.service';
 import { PanelComponent } from 'src/app/components/ui/panel/panel.component';
@@ -60,7 +61,15 @@ export class BaseballComponent implements OnInit {
   resultsTotal = 0;
   resultsTotalPages = 0;
   resultsHour = 'all';
+  resultsMarket: 'winner' | 'handicap' | 'total' = 'winner';
+  resultsMinProbability = 0;
   readonly hourOptions = HOUR_FILTER_OPTIONS;
+  readonly probabilityOptions = PROBABILITY_FILTER_OPTIONS;
+  readonly marketOptions = [
+    { value: 'winner', label: 'Ganador' },
+    { value: 'handicap', label: 'Hándicap' },
+    { value: 'total', label: 'Más / menos' }
+  ];
   generating = false;
   loadingResults = false;
   generationError = '';
@@ -108,7 +117,7 @@ export class BaseballComponent implements OnInit {
     this.loadingResults = true;
     this.resultsError = '';
     this.api
-      .getResults(this.resultDate, this.resultLeague, this.resultsPage, this.resultsPageSize, this.resultsHour)
+      .getResults(this.resultDate, this.resultLeague, this.resultsPage, this.resultsPageSize, this.resultsHour, this.resultsMarket, this.resultsMinProbability)
       .pipe(finalize(() => (this.loadingResults = false)))
       .subscribe({
         next: (response) => {

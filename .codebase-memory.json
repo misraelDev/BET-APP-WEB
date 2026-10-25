@@ -1,0 +1,13 @@
+{
+  "extra_extensions": {
+    ".mjs": "javascript",
+    ".cjs": "javascript",
+    ".ts": "typescript",
+    ".tsx": "typescript",
+    ".scss": "css",
+    ".sass": "css",
+    ".html": "html",
+    ".env": "ini",
+    ".mdx": "markdown"
+  }
+}
