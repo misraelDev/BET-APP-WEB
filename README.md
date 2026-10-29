@@ -23,19 +23,20 @@ Cada deporte dispone de vistas para:
 - RxJS
 - Lucide Angular
 - ApexCharts
+- Bun 1.4+
 
 ## Requisitos
 
-- Node.js `22.22.3+`, `24.15.0+` o `26+`
-- npm
+- Bun `1.4+` (runtime y gestor de dependencias)
 - Backend FastAPI ejecutándose en `http://127.0.0.1:8000`
 
-Comprueba las versiones instaladas:
+Comprueba la versión instalada:
 
 ```powershell
-node --version
-npm --version
+bun --version
 ```
+
+Guía de instalación, migración y ejecución: [Bun en BET-APP-WEB](docs/BUN.md).
 
 ## Instalación
 
@@ -43,7 +44,7 @@ Desde la carpeta del frontend:
 
 ```powershell
 cd C:\Users\misra\Documents\BET\BET-APP-WEB
-npm install
+bun install
 ```
 
 ## Ejecución local
@@ -59,7 +60,7 @@ Después inicia Angular:
 
 ```powershell
 cd C:\Users\misra\Documents\BET\BET-APP-WEB
-npm start
+bun run start
 ```
 
 Abre:
@@ -72,14 +73,6 @@ Documentación interactiva del backend:
 
 ```text
 http://127.0.0.1:8000/docs
-```
-
-### Node local compatible
-
-Si la versión global de Node no cumple el requisito de Angular, puedes ejecutar el proyecto sin reemplazarla:
-
-```powershell
-npx -y node@24.15.0 node_modules\@angular\cli\bin\ng.js serve --host 127.0.0.1 --port 4200
 ```
 
 ## Environments
@@ -97,7 +90,7 @@ export const environment = {
 };
 ```
 
-Se utiliza con `npm start` o `ng serve`.
+Se utiliza con `bun run start`.
 
 ### Producción
 
@@ -183,19 +176,18 @@ deporte.models.ts          # Contratos TypeScript
 ## Scripts
 
 ```powershell
-npm start          # Servidor de desarrollo
-npm run build      # Compilación
-npm run build-prod # Compilación con configuración de producción del template
-npm run watch      # Compilación continua
-npm test           # Pruebas Angular
-npm run lint       # ESLint
-npm run prettier   # Formatea src
+bun run start          # Servidor de desarrollo
+bun run build          # Compilación
+bun run build-prod     # Compilación con configuración de producción del template
+bun run watch          # Compilación continua
+bun run lint           # ESLint
+bun run prettier       # Formatea src
 ```
 
 ## Compilación de producción
 
 ```powershell
-npm run build
+bun run build
 ```
 
 El resultado se genera en:
@@ -222,16 +214,17 @@ Si no responde, inicia Uvicorn antes de usar el frontend.
 
 Detén `ng serve` con `Ctrl+C`, vuelve a iniciarlo y realiza una recarga forzada del navegador con `Ctrl+F5`.
 
-### Versión de Node incompatible
+### Bun no está instalado o está desactualizado
 
-Angular 22 rechazará algunas versiones intermedias de Node. Utiliza como mínimo Node `22.22.3` o `24.15.0`.
+Verifica con `bun --version`. Si falta o es anterior a `1.4`, sigue la guía
+[Bun en BET-APP-WEB](docs/BUN.md).
 
 ### El puerto 4200 está ocupado
 
 Usa otro puerto:
 
 ```powershell
-npm start -- --port 4201
+bun run start -- --port 4201
 ```
 
 ## Licencia

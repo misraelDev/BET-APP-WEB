@@ -101,7 +101,7 @@ export class TennisComponent implements OnInit {
         this.countLoading = false;
         this.cdr.detectChanges();
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.error = apiErrorMessage(error, 'No fue posible consultar la cartelera.');
         this.countLoading = false;
         this.cdr.detectChanges();
@@ -195,7 +195,7 @@ export class TennisComponent implements OnInit {
         this.working = false;
         this.cdr.detectChanges();
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.error = apiErrorMessage(error, 'No fue posible completar la operación.');
         this.working = false;
         this.cdr.detectChanges();

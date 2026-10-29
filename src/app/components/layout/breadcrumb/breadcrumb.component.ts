@@ -5,19 +5,21 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 const TITLES: Record<string, string> = {
   '/dashboard/default': 'Resumen',
-  '/sports/baseball/generate': 'Generar predicción de béisbol',
-  '/sports/baseball/results': 'Obtener predicciones de béisbol',
-  '/sports/baseball/update': 'Actualizar resultados de béisbol',
-  '/sports/football/generate': 'Generar predicción de fútbol',
+  // Secciones deshabilitadas (béisbol, tenis y básquetbol).
+  // '/sports/baseball/generate': 'Generar predicción de béisbol',
+  // '/sports/baseball/results': 'Obtener predicciones de béisbol',
+  // '/sports/baseball/update': 'Actualizar resultados de béisbol',
+  // Generar predicción y actualizar resultados de fútbol deshabilitados.
+  // '/sports/football/generate': 'Generar predicción de fútbol',
   '/sports/football/results': 'Obtener predicciones de fútbol',
-  '/sports/football/update': 'Actualizar resultados de fútbol',
-  '/sports/football/rankings': 'Rankings de analistas de fútbol',
-  '/sports/tennis/generate': 'Generar predicción de tenis',
-  '/sports/tennis/results': 'Obtener predicciones de tenis',
-  '/sports/tennis/update': 'Actualizar resultados de tenis'
-  ,'/sports/basketball/generate': 'Generar predicción de básquetbol'
-  ,'/sports/basketball/results': 'Obtener predicciones de básquetbol'
-  ,'/sports/basketball/update': 'Actualizar resultados de básquetbol'
+  // '/sports/football/update': 'Actualizar resultados de fútbol',
+  '/sports/football/rankings': 'Rankings de analistas de fútbol'
+  // '/sports/tennis/generate': 'Generar predicción de tenis',
+  // '/sports/tennis/results': 'Obtener predicciones de tenis',
+  // '/sports/tennis/update': 'Actualizar resultados de tenis'
+  // ,'/sports/basketball/generate': 'Generar predicción de básquetbol'
+  // ,'/sports/basketball/results': 'Obtener predicciones de básquetbol'
+  // ,'/sports/basketball/update': 'Actualizar resultados de básquetbol'
 };
 
 @Component({ selector: 'app-breadcrumb', standalone: true, imports: [RouterLink], templateUrl: './breadcrumb.component.html', styles: [], changeDetection: ChangeDetectionStrategy.OnPush })

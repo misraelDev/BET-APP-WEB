@@ -1,34 +1,16 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+// @ts-check
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import angular from 'angular-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all
-});
-
-export default [
+export default tseslint.config(
   {
-    ignores: ['projects/**/*']
+    ignores: ['dist/**', '.angular/**', 'out-tsc/**', 'projects/**/*']
   },
-  ...compat
-    .extends(
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@angular-eslint/recommended',
-      'plugin:@angular-eslint/template/process-inline-templates'
-    )
-    .map((config) => ({
-      ...config,
-      files: ['**/*.ts']
-    })),
   {
     files: ['**/*.ts'],
-
+    extends: [eslint.configs.recommended, ...tseslint.configs.recommended, ...angular.configs.tsRecommended],
+    processor: angular.processInlineTemplates,
     rules: {
       '@angular-eslint/directive-selector': [
         'error',
@@ -51,12 +33,9 @@ export default [
       '@angular-eslint/prefer-standalone': 'off'
     }
   },
-  ...compat.extends('plugin:@angular-eslint/template/recommended').map((config) => ({
-    ...config,
-    files: ['**/*.html']
-  })),
   {
     files: ['**/*.html'],
+    extends: [...angular.configs.templateRecommended],
     rules: {}
   }
-];
+);

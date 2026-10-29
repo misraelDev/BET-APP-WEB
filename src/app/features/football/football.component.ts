@@ -15,7 +15,6 @@ import { MarketLabelComponent } from 'src/app/components/ui/market-label/market-
 import { ProbabilityBarComponent } from 'src/app/components/ui/probability-bar/probability-bar.component';
 import { FootballApiService } from './football-api.service';
 import {
-  FootballMarket,
   FootballMarketKey,
   FootballLeague,
   FootballPrediction,
@@ -156,7 +155,7 @@ export class FootballComponent implements OnInit {
         this.working = false;
         this.cdr.detectChanges();
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.error = apiErrorMessage(error, 'No fue posible completar la operación.');
         this.working = false;
         this.cdr.detectChanges();

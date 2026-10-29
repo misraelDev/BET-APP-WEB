@@ -4,11 +4,12 @@ import {
   LucideChartNoAxesCombined,
   LucideChevronDown,
   LucideChevronRight,
-  LucideCircle,
-  LucideCircleDot,
+  // Iconos de las secciones deshabilitadas (béisbol, tenis y básquetbol).
+  // LucideCircle,
+  // LucideCircleDot,
   LucideGoal,
   LucideTrophy
-  ,LucideCircleDotDashed
+  // ,LucideCircleDotDashed
 } from '@lucide/angular';
 
 @Component({
@@ -20,19 +21,21 @@ import {
     LucideChartNoAxesCombined,
     LucideChevronDown,
     LucideChevronRight,
-    LucideCircle,
-    LucideCircleDot,
+    // Iconos de las secciones deshabilitadas.
+    // LucideCircle,
+    // LucideCircleDot,
     LucideGoal,
     LucideTrophy
-    ,LucideCircleDotDashed
+    // ,LucideCircleDotDashed
   ],
   templateUrl: './sidebar.component.html',
   styles: []
 })
 export class SidebarComponent {
   readonly navigate = output<void>();
-  readonly baseballOpen = signal(true);
+  // Secciones deshabilitadas: se reactivan junto con sus rutas.
+  // readonly baseballOpen = signal(true);
   readonly footballOpen = signal(true);
-  readonly tennisOpen = signal(true);
-  readonly basketballOpen = signal(true);
+  // readonly tennisOpen = signal(true);
+  // readonly basketballOpen = signal(true);
 }

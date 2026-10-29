@@ -63,7 +63,7 @@ Utiliza el ámbito que mejor identifique el módulo afectado:
 | `modelos` | Interfaces y tipos TypeScript |
 | `rutas` | Router y navegación |
 | `config` | Environments y configuración general |
-| `deps` | Dependencias de npm |
+| `deps` | Dependencias con Bun |
 | `docs` | README y documentación del repositorio |
 
 ## Reglas de redacción
@@ -153,16 +153,12 @@ git diff
 ### 2. Validar el proyecto
 
 ```powershell
-npm run lint
-npm test
-npm run build
+bun run lint
+bun run build
 ```
 
-Si la versión global de Node no es compatible con Angular 22:
-
-```powershell
-npx -y node@24.15.0 node_modules\@angular\cli\bin\ng.js build
-```
+El proyecto no tiene suite de pruebas configurada (`ng test` no existe como
+target y `src` no contiene archivos `*.spec.ts`).
 
 ### 3. Agregar únicamente los archivos del cambio
 
